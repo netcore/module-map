@@ -2,6 +2,7 @@
 
 namespace Modules\Map\Http\Controllers;
 
+use Exception;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -51,6 +52,7 @@ class MapController extends Controller
         );
 
         $this->storeMarkersAndPolygons($map, $request);
+        $this->clearCache($map);
 
         return response()->json([
             'redirect' => route('map::maps.edit', $map),
@@ -87,6 +89,7 @@ class MapController extends Controller
         );
 
         $this->storeMarkersAndPolygons($map, $request);
+        $this->clearCache($map);
 
         return response()->json([
             'success' => 'Map successfully updated!',
@@ -138,15 +141,35 @@ class MapController extends Controller
     {
         $this->validate($request, [
             'identifier' => ['required', Rule::unique('netcore_map__maps', 'identifier')->ignore($map->id ?? 0)],
-            'zoom'       => 'required|min:1|max:20',
+            'zoom'       => 'required|integer|min:1|max:20',
             'latitude'   => 'required|numeric',
             'longitude'  => 'required|numeric',
 
             'markers.*.latitude'  => 'required|numeric',
             'markers.*.longitude' => 'required|numeric',
 
+            'polygons'           => 'array',
+            'polygons.*.markers' => 'array|min:3',
+
             'polygons.*.markers.*.latitude'  => 'required|numeric',
             'polygons.*.markers.*.longitude' => 'required|numeric',
+        ], [
+            'polygons.*.markers.min' => 'Each polygon must have at least 3 markers!',
         ]);
+    }
+
+    /**
+     * Clear cached data.
+     *
+     * @param \Modules\Map\Models\Map $map
+     * @return void
+     */
+    private function clearCache(Map $map): void
+    {
+        try {
+            cache()->forget('map::markers-' . $map->id);
+        } catch (Exception $e) {
+            logger()->critical('[module-map :: MapController] Unable to clear cache - ' . $e->getMessage());
+        }
     }
 }
