@@ -1,0 +1,32 @@
+{
+    "name": "netcore/module-map",
+    "description": "Maps management module for Netcore CMS ecosystem.",
+    "homepage": "http://netcore.lv",
+    "type": "module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Viktors Ņikiforovs",
+            "email": "viktors.nikiforovs@netcore.lv"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Map\\Providers\\MapServiceProvider"
+            ],
+            "aliases": {
+                
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Map\\": ""
+        }
+    },
+    "require": {
+        "php": ">=7.1"
+    },
+    "minimum-stability": "dev"
+}
