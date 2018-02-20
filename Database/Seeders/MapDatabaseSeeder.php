@@ -53,7 +53,7 @@ class MapDatabaseSeeder extends Seeder
                 [
                     'icon'            => 'fa fa-map',
                     'type'            => 'route',
-                    'active_resolver' => 'admin.maps.*',
+                    'active_resolver' => 'map::maps.*',
                     'is_active'       => true,
                     'parameters'      => json_encode([]),
 
