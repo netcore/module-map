@@ -43,7 +43,7 @@ class MapDatabaseSeeder extends Seeder
      */
     protected function seedMenu(): void
     {
-        if (! method_exists(menu(), 'seedItems')) {
+        if (!method_exists(menu(), 'seedItems')) {
             $this->command->error('Menu seeding skipped - old admin module used in this project!');
             return;
         }
@@ -76,18 +76,23 @@ class MapDatabaseSeeder extends Seeder
      */
     protected function seedSettings(): void
     {
-        collect([
+        setting()->seed([
             [
                 'group' => 'maps',
                 'name'  => 'Google Maps API key',
                 'key'   => 'api_key',
+                'value' => '',
                 'type'  => 'text',
-                'meta'  => [
+
+                'meta' => [
                     'attributes' => [
                         'required' => 'required',
                     ],
                 ],
+
+                'is_translatable' => 0,
+                'has_manager'     => 0,
             ],
-        ])->each([Setting::class, 'create']);
+        ]);
     }
 }

@@ -19,7 +19,7 @@
     </div>
 
     @php
-        $key = setting()->maps()->get('api_key');
+        $key = setting()->get('maps.api_key');
     @endphp
 
     <div id="maps-app">
