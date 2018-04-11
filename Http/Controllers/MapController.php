@@ -93,6 +93,7 @@ class MapController extends Controller
 
         return response()->json([
             'success' => 'Map successfully updated!',
+            'map'     => $map->fresh()->format()->forVue(),
         ]);
     }
 
@@ -105,29 +106,81 @@ class MapController extends Controller
      */
     private function storeMarkersAndPolygons(Map $map, Request $request): void
     {
-        $map->markers()->delete();
-        $map->polygons()->delete();
+        // Deal with single markers.
+        $existingMarkers = $map->markers()->pluck('id')->toArray();
+        $newMarkers = [];
 
-        foreach ($request->input('markers', []) as $marker) {
-            $map->markers()->create([
-                'latitude'  => $marker['latitude'] ?? 0,
-                'longitude' => $marker['longitude'] ?? 0,
-                'address'   => $marker['address'] ?? null,
-            ]);
-        }
+        foreach ($request->input('markers', []) as $markerData) {
+            if (isset($markerData['id'])) {
+                $marker = $map->markers()->findOrFail($markerData['id']);
 
-        foreach ($request->input('polygons', []) as $polygon) {
-            $polygonInstance = $map->polygons()->create([]);
-
-            foreach ((array)$polygon['markers'] ?? [] as $marker) {
-                $polygonInstance->markers()->create([
-                    'map_id'    => $map->id,
-                    'latitude'  => $marker['latitude'] ?? 0,
-                    'longitude' => $marker['longitude'] ?? 0,
-                    'address'   => $marker['address'] ?? null,
+                $marker->update([
+                    'latitude'  => $markerData['latitude'] ?? 0,
+                    'longitude' => $markerData['longitude'] ?? 0,
+                    'address'   => $markerData['address'] ?? null,
+                ]);
+            } else {
+                $marker = $map->markers()->create([
+                    'latitude'  => $markerData['latitude'] ?? 0,
+                    'longitude' => $markerData['longitude'] ?? 0,
+                    'address'   => $markerData['address'] ?? null,
                 ]);
             }
+
+            $newMarkers[] = $marker->id;
         }
+
+        // Delete markers that have been removed in frontend.
+        $markersToDelete = array_diff($existingMarkers, $newMarkers);
+        $map->markers()->whereIn('id', $markersToDelete)->delete();
+
+        // Deal with polygons.
+        $existingPolygons = $map->polygons()->pluck('id')->toArray();
+        $newPolygons = [];
+
+        foreach ($request->input('polygons', []) as $polygonData) {
+            if (isset($polygonData['id'])) {
+                $polygon = $map->polygons()->findOrFail($polygonData['id']);
+            } else {
+                $polygon = $map->polygons()->create([]);
+            }
+
+            $newPolygons[] = $polygon->id;
+
+            // Store polygon markers.
+            $existingPolygonMarkers = $polygon->markers()->pluck('id')->toArray();
+            $newPolygonMarkers = [];
+
+            foreach ((array)$polygonData['markers'] ?? [] as $markerData) {
+                if (isset($markerData['id'])) {
+                    $polygonMarker = $polygon->markers()->findOrFail($markerData['id']);
+
+                    $polygonMarker->update([
+                        'map_id'    => $map->id,
+                        'latitude'  => $markerData['latitude'] ?? 0,
+                        'longitude' => $markerData['longitude'] ?? 0,
+                        'address'   => $markerData['address'] ?? null,
+                    ]);
+                } else {
+                    $polygonMarker = $polygon->markers()->create([
+                        'map_id'    => $map->id,
+                        'latitude'  => $markerData['latitude'] ?? 0,
+                        'longitude' => $markerData['longitude'] ?? 0,
+                        'address'   => $markerData['address'] ?? null,
+                    ]);
+                }
+
+                $newPolygonMarkers[] = $polygonMarker->id;
+            }
+
+            // Delete polygon markers.
+            $polygonMarkersToDelete = array_diff($existingPolygonMarkers, $newPolygonMarkers);
+            $polygon->markers()->whereIn('id', $polygonMarkersToDelete)->delete();
+        }
+
+        // Delete polygons.
+        $polygonsToDelete = array_diff($existingPolygons, $newPolygons);
+        $map->polygons()->whereIn('id', $polygonsToDelete)->delete();
     }
 
     /**

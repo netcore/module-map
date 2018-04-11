@@ -18,8 +18,8 @@ class CreateNetcoreMapMapMarkersTable extends Migration
             $table->unsignedInteger('map_id');
             $table->unsignedInteger('map_polygon_id')->nullable();
 
-            $table->decimal('latitude', 8, 6);
-            $table->decimal('longitude', 9, 6);
+            $table->decimal('latitude', 8, 6)->default(0);
+            $table->decimal('longitude', 9, 6)->default(0);
             $table->string('address')->nullable();
 
             $table->timestamps();

@@ -96,6 +96,8 @@
                     this.marker.latitude = response.results[0].geometry.location.lat;
                     this.marker.longitude = response.results[0].geometry.location.lng;
 
+                    this.$emit('change');
+
                     this.showAddressInput = false;
                 }).then(() => {
                     this.processing = false;

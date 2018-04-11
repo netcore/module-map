@@ -41,6 +41,7 @@ class Format extends PassThrough
         foreach ($this->map->markers as $marker) {
             $data['markers'][] = [
                 'key'       => str_random(10),
+                'id'        => (int)$marker->id,
                 'latitude'  => (float)$marker->latitude,
                 'longitude' => (float)$marker->longitude,
                 'address'   => $marker->address,
@@ -49,6 +50,7 @@ class Format extends PassThrough
 
         foreach ($this->map->polygons as $polygon) {
             $polygonArray = [
+                'id'      => $polygon->id,
                 'key'     => str_random(10),
                 'markers' => [],
             ];
@@ -56,6 +58,7 @@ class Format extends PassThrough
             foreach ($polygon->markers as $marker) {
                 $polygonArray['markers'][] = [
                     'key'       => str_random(10),
+                    'id'        => (int)$marker->id,
                     'latitude'  => (float)$marker->latitude,
                     'longitude' => (float)$marker->longitude,
                     'address'   => $marker->address,
