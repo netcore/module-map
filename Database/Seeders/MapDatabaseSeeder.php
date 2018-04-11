@@ -3,7 +3,6 @@
 namespace Modules\Map\Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Modules\Setting\Models\Setting;
 use Netcore\Translator\Helpers\TransHelper;
 
 class MapDatabaseSeeder extends Seeder
@@ -51,19 +50,14 @@ class MapDatabaseSeeder extends Seeder
         menu()->seedItems([
             'leftAdminMenu' => [
                 [
+                    'module'          => 'Map',
                     'icon'            => 'fa fa-map',
                     'type'            => 'route',
                     'active_resolver' => 'map::maps.*',
                     'is_active'       => true,
                     'parameters'      => json_encode([]),
-
-                    'name' => $this->languages->mapWithKeys(function ($language) {
-                        return [$language->iso_code => 'Maps'];
-                    }),
-
-                    'value' => $this->languages->mapWithKeys(function ($language) {
-                        return [$language->iso_code => 'map::maps.index'];
-                    }),
+                    'name'            => 'Maps',
+                    'value'           => 'map::maps.index',
                 ],
             ],
         ]);

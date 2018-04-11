@@ -399,6 +399,10 @@
                                 message: res.data.success
                             });
                         }
+
+                        if(res.data.map) {
+                        	this.map = res.data.map;
+                        }
                     })
                     .catch(err => {
                         if (!err.response || err.response.status !== 422) {

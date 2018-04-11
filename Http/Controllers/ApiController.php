@@ -49,6 +49,7 @@ class ApiController extends Controller
 
         foreach ($map->markers as $marker) {
             $data['locations'][] = [
+                'id'  => (int)$marker->id,
                 'lat' => (float)$marker->latitude,
                 'lng' => (float)$marker->longitude,
             ];
@@ -59,6 +60,7 @@ class ApiController extends Controller
 
             foreach ($polygon->markers as $marker) {
                 $polygonData[] = [
+                    'id'  => (float)$marker->id,
                     'lat' => (float)$marker->latitude,
                     'lng' => (float)$marker->longitude,
                 ];
